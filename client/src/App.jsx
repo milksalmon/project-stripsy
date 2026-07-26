@@ -4,82 +4,32 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import React from 'react';
-import { Stage, Layer, Line, Text } from 'react-konva';
 
 const App = () => {
-  const [tool, setTool] = React.useState('pen');
-  const [lines, setLines] = React.useState([]);
-  const isDrawing = React.useRef(false);
+const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleMouseDown = (e) => {
-    isDrawing.current = true;
-    const pos = e.target.getStage().getPointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
-  };
-
-  const handleMouseMove = (e) => {
-    // no drawing - skipping
-    if (!isDrawing.current) {
-      return;
+  const runTest = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:3000/ai-test");
+      const data = await res.json();
+      setText(data.text);
+    } catch (err) {
+      console.error(err);
+      setText("Something went wrong.");
+    } finally {
+      setLoading(false);
     }
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-    let lastLine = lines[lines.length - 1];
-    // add point
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
-
-    // replace last
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
-  };
-
-  const handleMouseUp = () => {
-    isDrawing.current = false;
   };
 
   return (
-    <>
-    <div className="text-white">Testing</div>
-      <div>
-        <select
-          value={tool}
-          onChange={(e) => {
-            setTool(e.target.value);
-          }}
-        >
-          <option value="pen">Pen</option>
-          <option value="eraser">Eraser</option>
-        </select>
-        <Stage
-          width={window.innerWidth}
-          height={window.innerHeight}
-          onMouseDown={handleMouseDown}
-          onMousemove={handleMouseMove}
-          onMouseup={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUp}
-        >
-          <Layer>
-            {lines.map((line, i) => (
-              <Line
-                key={i}
-                points={line.points}
-                stroke="#df4b26"
-                strokeWidth={5}
-                tension={0.5}
-                lineCap="round"
-                lineJoin="round"
-                globalCompositeOperation={
-                  line.tool === 'eraser' ? 'destination-out' : 'source-over'
-                }
-              />
-            ))}
-          </Layer>
-        </Stage>
-      </div>
-    </>
-    
+    <div className="p-4">
+      <button onClick={runTest} className="px-4 py-2 bg-blue-500 text-white rounded">
+        {loading ? "Loading..." : "Run AI Test"}
+      </button>
+      {text && <p className="mt-4">{text}</p>}
+    </div>
   );
 };
 
