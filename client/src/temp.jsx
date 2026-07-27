@@ -1,12 +1,10 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 import React from 'react';
+import { useNavigate } from 'react-router-dom'
 import { Stage, Layer, Line, Text } from 'react-konva';
 
-const App = () => {
+const Temp = () => {
+  const navigate = useNavigate();
   const [tool, setTool] = React.useState('pen');
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
@@ -39,7 +37,9 @@ const App = () => {
 
   return (
     <>
-    <div className="text-white">Testing</div>
+    <div>
+        <button onClick={() => navigate('/')} className="px-4 py-2 bg-blue-500 text-white rounded m-5">Go to AI</button>
+      </div>
       <div>
         <select
           value={tool}
@@ -83,5 +83,5 @@ const App = () => {
   );
 };
 
-export default App;
+export default Temp;
 
