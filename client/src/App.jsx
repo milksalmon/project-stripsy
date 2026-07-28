@@ -8,7 +8,7 @@ import React from 'react';
 
 const App = () => {
   const navigate = useNavigate();
-const [text, setText] = useState("");
+  const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
 
   const runTest = async () => {

@@ -1,0 +1,20 @@
+stripsy-db.sessions.insertOne( {
+    sessionCode: "ABC123",
+    hostId: hostId,
+    players: [
+        { playerId: "id-1", displayName: "Alex", slotIndex: 0, isReady: false },
+        { playerId: "id-2", displayName: "Hirsch", slotIndex: 1, isReady: false },
+        { playerId: "id-3", displayName: "Willaim", slotIndex: 2, isReady: false },
+    ],
+    maxPlayers: 4,
+    status: "lobby",
+    createdAt: new Date()
+} )
+
+stripsy-db.panels.insertOne( {
+    sessionId: ObjectId("..."),
+    playerId: "id-1",
+    slotIndex: 0,
+    imageData: "base64string...",
+    status: "drawing"
+} )

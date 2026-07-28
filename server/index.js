@@ -2,13 +2,18 @@ import express from 'express';
 import { GoogleGenAI } from "@google/genai";
 import dotenv from 'dotenv';
 import cors from 'cors';
+import connectDB from './config/connect.js'
 
 dotenv.config();
 
 const app = express();
-const port = 3000;
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const gemini = process.env.GEMINI_API_KEY;
+const port = process.env.PORT;
+
+connectDB();
+
+const ai = new GoogleGenAI({ apiKey: gemini });
 
 app.use(cors());
 

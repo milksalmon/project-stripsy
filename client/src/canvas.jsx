@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Stage, Layer, Line, Text } from 'react-konva';
 
-const Temp = () => {
+const Canvas = () => {
   const navigate = useNavigate();
   const [tool, setTool] = useState('pen');
   // array of stroke objects
@@ -110,5 +110,5 @@ const Temp = () => {
   );
 };
 
-export default Temp;
+export default Canvas;
 
