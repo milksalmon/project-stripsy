@@ -29,7 +29,7 @@ const io = new Server(httpServer, {
   },
 });
 
-// Calls handshake with register socket.
+// Calls handshake with register socket.io
 io.on('connection', (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 

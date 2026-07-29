@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import React from 'react';
 
+
 const App = () => {
   const navigate = useNavigate();
   const [text, setText] = useState("");
@@ -10,7 +11,8 @@ const App = () => {
   const runTest = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/ai-test");
+      console.log('Fetching:', `${import.meta.env.VITE_SERVER_URL}/ai-test`);
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/ai-test`);
       const data = await res.json();
       setText(data.text);
     } catch (err) {
