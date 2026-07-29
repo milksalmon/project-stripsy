@@ -44,7 +44,7 @@ app.get('/ai-test', async (req, res) => {
   try {
     const interaction = await ai.interactions.create({
       model: "gemini-3.6-flash",
-      input: "Give me a word for each category, and write with the category template. FRUIT: VEGETABLE: MEAT: DRINK: ",
+      input: "Give 5 random countries",
     });
     res.json({text: interaction.output_text});
     console.log(interaction.output_text);
