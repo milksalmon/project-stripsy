@@ -1,4 +1,3 @@
-import './App.css'
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Stage, Layer, Line, Text } from 'react-konva';

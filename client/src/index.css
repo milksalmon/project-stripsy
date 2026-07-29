@@ -32,7 +32,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
     --text-h: #f3f4f6;
@@ -50,13 +50,11 @@
   #social .button-icon {
     filter: invert(1) brightness(2);
   }
-}
+} */
 
 body {
   margin: 0;
 }
-
-
 
 #root {
   width: 1126px;
