@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
-dotenv.config();
+dotenv.config(); 
 
 
 const connectDB = async () => {
@@ -11,9 +11,7 @@ const connectDB = async () => {
     await mongoose.connect(Db);
     console.log('MongoDB connected');
 
-    // test by inserting document in collection
-    await mongoose.connection.db.collection('panels').insertOne({ hello: 'world' });
-
+    // test to display collections
     const collections = await mongoose.connection.db.listCollections().toArray();
     console.log('Collections:', collections.map(c => c.name));
   } catch (err) {
