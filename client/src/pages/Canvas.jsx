@@ -60,7 +60,7 @@ const Canvas = () => {
   return (
     <>
       <div>
-        <button onClick={() => navigate('/')} className="px-4 py-2 bg-blue-500 text-white rounded m-5">Go to AI</button>
+        <button onClick={() => navigate('/reveal')} className="px-4 py-2 bg-blue-500 text-white rounded m-5">Go to Reveal</button>
       </div>
       <div>
         <button onClick={undo} className="px-4 py-2 bg-blue-500 text-white rounded m-5">Undo</button>

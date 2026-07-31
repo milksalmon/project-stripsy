@@ -1,10 +1,13 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import React from 'react';
+import { fetchAiTest } from '../services/geminiService';
 
-
-const App = () => {
+const Lobby = () => {
   const navigate = useNavigate();
+
+  const startDrawing = async () => {
+    await fetchAiTest();
+    navigate('/canvas');
+  };
 
   return (
     <>
@@ -13,5 +16,5 @@ const App = () => {
   );
 };
 
-export default App;
+export default Lobby;
 

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import React from 'react';
-
+import { fetchAiTest } from '../services/geminiService';
 
 const AiTest = () => {
   const navigate = useNavigate();
@@ -11,10 +10,8 @@ const AiTest = () => {
   const runTest = async () => {
     setLoading(true);
     try {
-      console.log('Fetching:', `${import.meta.env.VITE_SERVER_URL}/ai-test`);
-      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/ai-test`);
-      const data = await res.json();
-      setText(data.text);
+      const result = await fetchAiTest();
+      setText(result);
     } catch (err) {
       console.error(err);
       setText("Something went wrong.");
@@ -32,7 +29,7 @@ const AiTest = () => {
         {text && <p className="mt-4">{text}</p>}
       </div>
       <div>
-        <button onClick={() => navigate('/t')} className="px-4 py-2 bg-blue-500 text-white rounded">Go to canvas</button>
+        <button onClick={() => navigate('/canvas')} className="px-4 py-2 bg-blue-500 text-white rounded">Go to canvas</button>
       </div>
     </>
   );

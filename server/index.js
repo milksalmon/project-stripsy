@@ -20,7 +20,9 @@ connectDB();
 
 const ai = new GoogleGenAI({ apiKey: gemini });
 
-app.use(cors({origin: clientOrigin}));
+app.use(cors({origin: clientOrigin})); 
+
+app.use(express.json());
 
 // Socket.IO listener
 const io = new Server(httpServer, {
