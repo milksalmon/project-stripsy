@@ -61,6 +61,7 @@ const Canvas = () => {
     <>
       <div>
         <button onClick={() => navigate('/reveal')} className="px-4 py-2 bg-blue-500 text-white rounded m-5">Go to Reveal</button>
+        <button onClick={() => navigate(-1)}>back</button>
       </div>
       <div>
         <button onClick={undo} className="px-4 py-2 bg-blue-500 text-white rounded m-5">Undo</button>
