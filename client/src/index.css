@@ -2,20 +2,25 @@
 
 :root {
   background: #935247;
+  font-family: 'NitwFont';
 }
 
 body {
-  margin: 24px;
+  margin: 0px;
 }
 
 @font-face {
   font-family: "NitwFont";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100;
   font-display: swap;
   src: url("./assets/fonts/Nitw.otf") format("opentype");
 }
 
 @theme {
   --font-nitw: 'NitwFont', sans-serif;
+
+  --color-maroon-card: #40080B;
+  --color-maroon-slot: #5E1613;
+  --color-maroon-slot-empty: #4A2420;
 }
