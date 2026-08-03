@@ -39,14 +39,14 @@ import settingsIcon from '@/assets/icons/Settings.png';
           </h1>
 
           <div className='flex flex-col items-center gap-1'>
-            <span className=' text-orange-300 text-lg tracking-[0.2em]'>ROOM CODE</span>
+            <span className=' text-peach text-lg tracking-[0.2em]'>ROOM CODE</span>
             <span onClick={copyRoomCode} className=' text-white text-5xl cursor-pointer hover:text-orange-200 transition-colors'>{copied? 'COPIED!' : roomCode}</span>
           </div>
 
         <div className='flex items-start gap-2'>
           <div className='relative'>
             <div className='bg-maroon-card rounded-lg p-6 w-150'>
-              <p className=' text-orange-300 text-center text-3xl mb-5'> {panelCount} PANELS, SEALED UNTIL REVEAL</p>
+              <p className=' text-peach text-center text-3xl mb-5'> {panelCount} PANELS, SEALED UNTIL REVEAL</p>
 
               <div className='grid grid-cols-4 gap-3 mb-5'>
                 {Array.from({ length: panelCount }).map((_, i) => (
@@ -55,15 +55,14 @@ import settingsIcon from '@/assets/icons/Settings.png';
               </div>
 
               <div className='flex gap-3'>
-                {/* <button className='flex-initial rounded-md bg-maroon-slot text-orange-300 px-4 py-3 text-2xl'>COPY CODE</button> */}
-                <button onClick={() => navigate('/canvas')} className='cursor-pointer flex-auto rounded-md text-maroon-card bg-orange-300 px-4 py-3 text-3xl'>START DRAWING!</button>
+                <button onClick={() => navigate('/canvas')} className='cursor-pointer flex-auto rounded-md text-maroon-card bg-peach px-4 py-3 text-3xl'>START DRAWING!</button>
               </div>
             </div>
 
             <div className='absolute top-0 -right-2 translate-x-full'>
               <Popover>
-                <PopoverTrigger className='bg-orange-300 text-maroon-card rounded-md p-3 cursor-pointer'>
-                  <img src={settingsIcon} alt='SETTINGS' />
+                <PopoverTrigger className='bg-peach text-maroon-card rounded-md p-3 cursor-pointer'>
+                  <img className='w-7.5' src={settingsIcon} alt='SETTINGS' />
                 </PopoverTrigger>
                 <PopoverContent>
                   <SessionSettingsPanel onApply={(settings) => console.log(settings)} />
