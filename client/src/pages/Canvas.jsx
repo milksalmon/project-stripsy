@@ -17,6 +17,8 @@ const STROKE_WIDTHS = [4, 10, 18, 26];
 
 const Canvas = () => {
   const navigate = useNavigate()
+  const [comicTitle] = useState('Comic Title');
+  const [panelTitle] = useState('Panel Title');
   const [tool, setTool] = useState('pen');
   // array of stroke objects
   const [lines, setLines] = useState([]);
@@ -161,7 +163,7 @@ const Canvas = () => {
                 updated[i] = newColor;
                 return updated;
               });
-              setSelectedInfex(i);
+              setSelectedIndex(i);
             }}
           />
         ))}
@@ -172,7 +174,10 @@ const Canvas = () => {
       </div>
 
       <div>
-        <div className='bg-maroon-card w-200 h-25 rounded-t-lg'/>
+        <div className='flex flex-col bg-maroon-card w-200 h-25 rounded-t-lg items-center justify-center'>
+          <span className='text-peach text-lg tracking-wide'>{comicTitle}</span>
+          <span className='text-peach text-3xl tracking-wide'>{panelTitle}</span>
+        </div>
         <div className='overflow-hidden rounded-b-lg'>
           <Stage
             width={800}
