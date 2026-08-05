@@ -14,13 +14,21 @@ import ToolButton from '@/components/ToolButton.jsx';
 
 const SWATCH_COLORS = ['#000000', '#FFFFFF', '#7A7A7A', '#C0C0C0', '#2F5FBF', '#8FC1E8', '#C23B6B', '#7A4A2E'];
 const STROKE_WIDTHS = [4, 10, 18, 26];
+const LOGICAL_WIDTH = 800;
+const LOGICAL_HEIGHT = 600;
 
 const Canvas = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  // Read scale of canvas stage
+  const [scale, setScale] = useState(1);
+  const canvasWrapperRef = useRef(null);
+
+  // For title
   const [comicTitle] = useState('Comic Title');
   const [panelTitle] = useState('Panel Title');
-  const [tool, setTool] = useState('pen');
+  
   // array of stroke objects
+  const [tool, setTool] = useState('pen');
   const [lines, setLines] = useState([]);
   const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTHS[1]);
   const [redoStack, setRedoStack] = useState([]);
@@ -30,6 +38,23 @@ const Canvas = () => {
   const isDrawing = useRef(false);
   const mouseButtonDown = useRef(false);
   
+
+  useEffect(() => {
+    const container = canvasWrapperRef.current;
+    if (!container)
+      return;
+
+    const updateScale = () => {
+      const available = container.clientWidth;
+      setScale(Math.min(1, available / LOGICAL_WIDTH));
+    }
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [])
+
   const undo = () => {
     if (isDrawing.current || lines.length === 0) return;
 
@@ -173,15 +198,17 @@ const Canvas = () => {
         </button>
       </div>
 
-      <div>
-        <div className='flex flex-col bg-maroon-card w-200 h-25 rounded-t-lg items-center justify-center'>
+      <div ref={canvasWrapperRef} className='flex-1 min-w-0 max-w-200'>
+        <div style={{width: LOGICAL_WIDTH * scale}} className='flex flex-col bg-maroon-card h-25 rounded-t-lg items-center justify-center'>
           <span className='text-peach text-lg tracking-wide'>{comicTitle}</span>
           <span className='text-peach text-3xl tracking-wide'>{panelTitle}</span>
         </div>
         <div className='overflow-hidden rounded-b-lg'>
           <Stage
-            width={800}
-            height={600}
+            width={LOGICAL_WIDTH * scale}
+            height={LOGICAL_HEIGHT * scale}
+            scaleX={scale}
+            scaleY={scale}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -192,7 +219,7 @@ const Canvas = () => {
             onTouchEnd={handleMouseUp}
           >
             <Layer>
-              <Rect x={0} y={0} width={800} height={600} fill='#FFF3E3'/>
+              <Rect x={0} y={0} width={LOGICAL_WIDTH * scale} height={LOGICAL_HEIGHT * scale} fill='#FFF3E3'/>
             </Layer>
 
             <Layer>
