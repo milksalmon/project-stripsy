@@ -52,7 +52,7 @@ const Canvas = () => {
     return () => window.removeEventListener('mouseup', handleWindowMouseUp);
   }, []);
 
-  // Undo Redo shortcut register
+  // Undo redo ctrl shortcut register
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!e.ctrlKey) return;
@@ -147,8 +147,8 @@ const Canvas = () => {
 
 
   return (
-    <div className='flex justify-center items-start gap-6 pt-12'>
-        <button onClick={() => navigate(-1)}>back</button>
+    <div className='flex justify-center items-start gap-6 pt-12 pb-12'>
+        {/* <button onClick={() => navigate(-1)}>back</button> */}
 
       <div className='bg-maroon-slot rounded-lg p-4 grid grid-cols-2 gap-3 self-center'>
         {swatchColors.map((swatch, i) => (

@@ -28,9 +28,6 @@ import settingsIcon from '@/assets/icons/Settings.png';
 
 
     return (
-
-
-
         <div className='flex flex-col items-center pt-12 gap-10'>
 
           <h1 className='text-9xl'>

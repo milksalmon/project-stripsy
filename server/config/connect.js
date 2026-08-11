@@ -13,7 +13,9 @@ const connectDB = async () => {
 
     // test to display collections
     const collections = await mongoose.connection.db.listCollections().toArray();
-    console.log('Collections:', collections.map(c => c.name));
+    console.log('Collections:', collections.map(c => c.name));  
+
+    
   } catch (err) {
     console.error('MongoDB connection error:', err);
     process.exit(1);
