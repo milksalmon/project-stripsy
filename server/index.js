@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/connect.js'
 import registerSocketHandlers from './sockets/index.js'
+import cookieParser from 'cookie-parser';
+import authRouter from './routes/auth.js';
 
 dotenv.config();
 
@@ -20,9 +22,12 @@ connectDB();
 
 const ai = new GoogleGenAI({ apiKey: gemini });
 
-app.use(cors({origin: clientOrigin})); 
+app.use(cors({ origin: clientOrigin, credentials: true }));
 
 app.use(express.json());
+
+app.use(cookieParser());
+app.use('/auth', authRouter);
 
 // Socket.IO listener
 const io = new Server(httpServer, {
