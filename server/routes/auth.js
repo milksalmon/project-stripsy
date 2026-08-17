@@ -75,8 +75,4 @@ router.post('/logout', (req, res) => {
     res.status(204).send();
 });
 
-router.get('/me', requireAuth, (req, res) => {
-    res.json({ userId: req.userId });
-});
-
 export default router;
