@@ -19,10 +19,10 @@ function issueToken(user) {
 }
 
 router.post('/signup', async (req, res) => {
-    const { email, password, nickname } = req.body;
+    const { email, password, username } = req.body;
 
-    if (!email || !password || !nickname) {
-        return res.status(400).json({ error: 'Email, password, and nickname are required.' });
+    if (!email || !password || !username) {
+        return res.status(400).json({ error: 'Email, password, and username are required.' });
     }
 
     try {
@@ -32,11 +32,11 @@ router.post('/signup', async (req, res) => {
         }
 
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-        const user = await User.create({ email, passwordHash, nickname });
+        const user = await User.create({ email, passwordHash, username });
 
         const token = issueToken(user);
         res.cookie('token', token, cookieOptions);
-        res.status(201).json({ email: user.email, nickname: user.nickname });
+        res.status(201).json({ email: user.email, username: user.username });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Signup failed.' });
@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
 
         const token = issueToken(user);
         res.cookie('token', token, cookieOptions);
-        res.json({ email: user.email, nickname: user.nickname });
+        res.json({ email: user.email, username: user.username });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Login failed.' });

@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
   }, { _id: false });
 
   const participantSchema = new mongoose.Schema({
-      nickname: { type: String, required: true },
+      username: { type: String, required: true },
       accountId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
