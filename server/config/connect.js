@@ -1,8 +1,11 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import dns from 'node:dns';
+
 
 dotenv.config(); 
 
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const connectDB = async () => {
   const Db = process.env.ATLAS_URI;
