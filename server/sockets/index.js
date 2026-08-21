@@ -1,4 +1,4 @@
-import { createRoom, joinRoom, findRoomBySocket, leaveRoom } from '../state/rooms.js'
+import { createRoom, joinRoom, findRoomBySocket, leaveRoom, updateRoomSettings } from '../state/rooms.js'
 
 const registerSocketHandlers = (io, socket) => {
   socket.on('room:create', ({ username }, callback) => {
@@ -18,17 +18,29 @@ const registerSocketHandlers = (io, socket) => {
     socket.to(code).emit('room:updated', result.room);
   });
 
-  socket.on('room:leave', ({ code }) => handleLeave(io, socket, code));
+  socket.on('room:leave', ({ code }) => handleLeave(socket, code));
 
   socket.on('disconnect', () => {
     // Take searched socket and disconnect
     const code = findRoomBySocket(socket.id);
-    if (code) handleLeave(io, socket, code);
+    if (code) handleLeave(socket, code);
   });
+
+  socket.on('room:updateSettings', ({ code, settings }, callback) => {
+    const result = updateRoomSettings(code, socket.id, settings);
+
+    if (result.error) {
+      callback(result);
+      return;
+    }
+    callback({ room: result.room });
+
+    socket.to(code).emit('room:updated', result.room);
+  })
 };
 
 // Closing room
-function handleLeave(io, socket, code) {
+function handleLeave(socket, code) {
   const result = leaveRoom(code, socket.id)
   socket.leave(code);
 

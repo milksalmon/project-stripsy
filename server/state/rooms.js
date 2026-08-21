@@ -78,3 +78,20 @@ export function findRoomBySocket(socketId) {
     }
     return null;
 }
+
+export function updateRoomSettings(code, socketId, settings) {
+    const room = rooms.get(code);
+    if (!room) {
+        return { error: 'Room not found.'};
+    }
+
+    const participant = room.participants.find(p => p.socketId === socketId);
+    if (!participant || !participant.isHost) {
+        return { error: 'Only the host can update settings.'};
+    }
+
+    if (settings.timerDuration !== undefined) room.timerDuration = settings.timerDuration;
+    if (settings.themePrompt !== undefined) room.themePrompt = settings.themePrompt;
+
+    return { room };
+}
