@@ -12,7 +12,7 @@ const ParticipantSlot = ({ number, participant }) => {
     return (
         <div className='rounded-md aspect-3/4 flex flex-col items-center gap-1 bg-maroon-slot'>
             <span className='text-orange-300 text-2xl'>{number}</span>
-            <span className="text-white text-3xl text-center leading-tight">{participant.name} {participant.host && <><br />(HOST)</>}</span>
+            <span className="text-white text-3xl text-center leading-tight">{participant.username}{participant.isHost && <><br />(HOST)</>}</span>
         </div>
     );
 

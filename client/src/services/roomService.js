@@ -3,16 +3,16 @@ import { socket } from '../socket.js';
 export const createRoom = (username) =>
     new Promise((resolve, reject) => {
         socket.emit('room:create', { username }, (res) => {
-        if (res.error) reject(res);
-        else resolve(res);
+            if (res.error) reject(res);
+            else resolve(res);
         });
     });
 
 export const joinRoom = (code, username) =>
     new Promise((resolve, reject) => {
         socket.emit('room:join', { code, username }, (res) => {
-        if (res.error) reject(res);
-        else resolve(res);
+            if (res.error) reject(res);
+            else resolve(res);
         });
     });
 
@@ -24,8 +24,8 @@ export const leaveRoom = (code) =>
 export const updateRoomSettings = (code, settings) =>
     new Promise((resolve, reject) => {
         socket.emit('room:updateSettings', { code, settings }, (res) => {
-        if (res.error) reject(res);
-        else resolve(res);
+            if (res.error) reject(res);
+            else resolve(res);
         });
     });
 

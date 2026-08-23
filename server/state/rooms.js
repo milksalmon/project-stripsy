@@ -3,7 +3,7 @@ const rooms = new Map();
 
 export function generateRoomCode(length = 6) {
     let code;
-    // reset code if rooms has similar code.
+    // guard to reset code if generated room code matches existing one.
     do {
         code = '';
         for (let i = 0; i < length; i++) {

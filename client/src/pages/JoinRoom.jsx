@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRoom } from '@/context/useRoom.js';
+import { socket } from '@/socket.js';
 import { createRoom, joinRoom, deriveIsHost } from '@/services/roomService.js';
 
 const JoinRoom = () => {
 const navigate = useNavigate();
 const { setRoom, setCode, setIsHost } = useRoom();
+
+useEffect(() => {
+    socket.connect();
+}, []);
 
 const [roomCode, setRoomCode] = useState('');
 const [username, setUsername] = useState('');
@@ -21,20 +26,20 @@ const enterRoom = (code, room) => {
 const handleJoin = async () => {
     setError('');
     try {
-    const { room } = await joinRoom(roomCode.trim().toUpperCase(), username.trim());
-    enterRoom(roomCode.trim().toUpperCase(), room);
+        const { room } = await joinRoom(roomCode.trim().toUpperCase(), username.trim());
+        enterRoom(roomCode.trim().toUpperCase(), room);
     } catch (err) {
-    setError(err.error ?? 'Could not join room.');
+        setError(err.error ?? 'Could not join room.');
     }
 };
 
 const handleCreate = async () => {
     setError('');
     try {
-    const { code, room } = await createRoom(username.trim());
-    enterRoom(code, room);
+        const { code, room } = await createRoom(username.trim());
+        enterRoom(code, room);
     } catch (err) {
-    setError(err.error ?? 'Could not create room.');
+        setError(err.error ?? 'Could not create room.');
     }
 };
 
@@ -62,8 +67,7 @@ return (
         </div>
 
         <div className='flex flex-col gap-1'>
-        <label className='text-peach text-sm tracking-[0.15em] text-center'>YOUR NAME IN THIS
-ROOM</label>
+        <label className='text-peach text-sm tracking-[0.15em] text-center'>YOUR NAME IN THIS ROOM</label>
         <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -74,10 +78,9 @@ ROOM</label>
         {error && <p className='text-orange-300 text-sm text-center'>{error}</p>}
 
         <button
-        onClick={handleJoin}
-        disabled={!roomCode.trim() || !username.trim()}
-        className='cursor-pointer rounded-md bg-peach text-maroon-card px-4 py-3 text-2xl
-disabled:opacity-50 disabled:cursor-not-allowed'
+            onClick={handleJoin}
+            disabled={!roomCode.trim() || !username.trim()}
+            className='cursor-pointer rounded-md bg-peach text-maroon-card px-4 py-3 text-2xl disabled:opacity-50 disabled:cursor-not-allowed'
         >
         JOIN ROOM
         </button>
@@ -85,16 +88,15 @@ disabled:opacity-50 disabled:cursor-not-allowed'
         <p className='text-peach text-center'>OR</p>
 
         <button
-        onClick={handleCreate}
-        disabled={!username.trim()}
-        className='cursor-pointer rounded-md bg-peach text-maroon-card px-4 py-3 text-2xl
-disabled:opacity-50 disabled:cursor-not-allowed'
+            onClick={handleCreate}
+            disabled={!username.trim()}
+            className='cursor-pointer rounded-md bg-peach text-maroon-card px-4 py-3 text-2xl disabled:opacity-50 disabled:cursor-not-allowed'
         >
         CREATE A NEW ROOM
         </button>
 
         <p className='text-white text-center text-sm mt-2'>
-        HAVE AN ACCOUNT? <span className='text-peach'>LOG IN</span>
+            HAVE AN ACCOUNT? <span className='text-peach'>LOG IN</span>
         </p>
     </div>
     </div>

@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 const TIMER_OPTIONS = [60, 90, 120];
 
-const SessionSettingsPanel = ({ onApply }) => {
-    const [timer, setTimer] = useState(TIMER_OPTIONS[0]);
-    const [theme, setTheme] = useState('');
+const SessionSettingsPanel = ({ timerDuration, themePrompt, onApply }) => {
+    const [timer, setTimer] = useState(timerDuration ?? TIMER_OPTIONS[0]);
+    const [theme, setTheme] = useState(themePrompt ?? '');
 
     const handleApply = () => {
         onApply({ timer, theme })

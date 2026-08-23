@@ -10,10 +10,12 @@ export const RoomProvider = ({ children }) => {
 
     useEffect(() => {
         const handleUpdated = (updatedRoom) => {
+            console.log('room:updated fired', updatedRoom)
             setRoom(updatedRoom);
             setIsHost(deriveIsHost(updatedRoom));
         };
         const handleClosed = () => {
+            console.log('room:closed fired')
             setRoom(null);
             setCode(null);
             setIsHost(false);
