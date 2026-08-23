@@ -95,3 +95,12 @@ export function updateRoomSettings(code, socketId, settings) {
 
     return { room };
 }
+
+// For session
+export function getRoom(code) {
+    return rooms.get(code);
+}
+
+export function deleteRoom(code) {
+    rooms.delete(code);
+}
