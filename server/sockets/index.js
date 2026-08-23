@@ -18,7 +18,10 @@ const registerSocketHandlers = (io, socket) => {
     socket.to(code).emit('room:updated', result.room);
   });
 
-  socket.on('room:leave', ({ code }) => handleLeave(socket, code));
+  socket.on('room:leave', ( { code }, callback) => {
+    handleLeave(socket, code);
+    if (callback) callback({});
+  });
 
   socket.on('disconnect', () => {
     // Take searched socket and disconnect
