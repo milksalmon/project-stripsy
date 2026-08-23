@@ -1,7 +1,10 @@
 import Session from '../models/session.js';
 import { createRoom, joinRoom, findRoomBySocket, leaveRoom, updateRoomSettings, getRoom, deleteRoom } from '../state/rooms.js'
+import { generateSessionContent } from '../services/gemini.js';
 
-const registerSocketHandlers = (io, socket) => {
+const MAX_PANELS = 4;
+
+const registerSocketHandlers = (io, socket, ai) => {
   socket.on('room:create', ({ username }, callback) => {
     const { code, room } = createRoom(socket.id, username);
     socket.join(code);
@@ -51,21 +54,34 @@ const registerSocketHandlers = (io, socket) => {
       return callback({ error: 'Only the host can start the session.' });
     }
 
-    const shuffled = [...room.participants].sort(() => Math.random() - 0.5);
+    const panelOwners = assignPanelOwners(room.participants);
+
+    let comicTitle, panelTitles;
+    try {
+      ({ comicTitle, panelTitles } = await generateSessionContent(ai, room.themePrompt, MAX_PANELS));
+    } catch (err) {
+      console.error(err);
+      return callback({ error: 'Failed to generate comic content.' });
+    }
 
     const session = await Session.create({
       roomCode: code,
-      participants: shuffled.map(p => ({ username: p.username, accountId: null })),
+      participants: room.participants.map(p => ({ username: p.username, accountId: null })),
       timerDuration: room.timerDuration,
       themePrompt: room.themePrompt,
-      panels: shuffled.map(() => ({ strokes: [] })),
+      comicTitle,
+      panelTitles,
+      panels: panelOwners.map(ownerIndex => ({ strokes: [], ownerIndex })),
     });
 
     deleteRoom(code);
 
     io.to(code).emit('session:started', {
       sessionId: session._id,
-      participants: shuffled,
+      participants: room.participants,
+      panelOwners,
+      comicTitle,
+      panelTitles,
       timerDuration: session.timerDuration,
     });
 
@@ -85,6 +101,22 @@ function handleLeave(socket, code) {
     // Keep room if not host
     socket.to(code).emit('room:updated', result.room)
   }
+}
+
+function assignPanelOwners(participants) {
+  const n = participants.length;
+  const base = Math.floor(MAX_PANELS / n);
+  const remainder = MAX_PANELS % n;
+
+  const shuffledIndices = participants.map((_, i) => i).sort(() => Math.random() - 0.5);
+
+  const owners = [];
+  shuffledIndices.forEach((participantIndex, i) => {
+    const count = base + (i < remainder ? 1 : 0);
+    for (let k = 0; k < count; k++) owners.push(participantIndex);
+  });
+
+  return owners.sort(() => Math.random() - 0.5);
 }
 
 export default registerSocketHandlers;

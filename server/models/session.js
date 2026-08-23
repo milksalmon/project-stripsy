@@ -20,6 +20,10 @@ const strokeSchema = new mongoose.Schema({
 
 const panelSchema = new mongoose.Schema({
     strokes: [strokeSchema],
+    ownerIndex: {
+        type: Number,
+        required: true,
+    },
 }, { _id: false });
 
 const participantSchema = new mongoose.Schema({
