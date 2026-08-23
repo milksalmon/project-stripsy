@@ -6,11 +6,14 @@ import { leaveRoom, updateRoomSettings } from '@/services/roomService.js';
 import ParticipantSlot from '@/components/ParticipantSlot';
 import SessionSettingsPanel from '@/components/SessionSettingsPanel';
 import settingsIcon from '@/assets/icons/Settings.png';
+import { startSession } from '../services/roomService.js';
+import { useSession } from '../context/useSession.js';
 
 const MAX_PANELS = 4;
 
 const Lobby = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const { sessionId } = useSession();
   const { room, code, isHost, setRoom, setCode, setIsHost } = useRoom();
 
   const [copied, setCopied] = useState(false);
@@ -19,12 +22,24 @@ const Lobby = () => {
     if (!room || !code) navigate('/');
   }, [room, code, navigate]);
 
+  useEffect(() => {
+    if (sessionId) navigate('/canvas');
+  }, [sessionId, navigate]);
+
   if (!room || !code) return null;
 
   const copyRoomCode = async () => {
     await navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleStart = async () => {
+    try {
+      await startSession(code);
+    } catch (err) {
+      console.error(err.error ?? 'Could not start session.');
+    }
   };
 
   const handleLeave = async () => {
@@ -72,7 +87,7 @@ const Lobby = () => {
 
             <div className='flex gap-3'>
               {isHost ? (
-                <button onClick={() => navigate('/canvas')} className='cursor-pointer flex-auto rounded-md text-maroon-card bg-peach px-4 py-3 text-3xl'>
+                <button onClick={handleStart} className='cursor-pointer flex-auto rounded-md text-maroon-card bg-peach px-4 py-3 text-3xl'>
                   START DRAWING!
                 </button>
               ) : (

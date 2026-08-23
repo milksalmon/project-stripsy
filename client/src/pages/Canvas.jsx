@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Stage, Layer, Line, Rect } from 'react-konva';
+import { useSession } from '@/context/useSession.js';
 import ColorSwatch from '@/components/ColorSwatch';
 import StrokeWidthButton from '@/components/StrokeWidthButton';
 import EyeDropper from '@/assets/icons/eyedropper.png';
@@ -17,8 +18,15 @@ const STROKE_WIDTHS = [4, 10, 18, 26];
 
 const Canvas = () => {
   const navigate = useNavigate()
-  const [comicTitle] = useState('Comic Title');
-  const [panelTitle] = useState('Panel Title');
+  const { comicTitle, panelTitles, myPanelIndices } = useSession();
+  const [ownedPanelPointer, setOwnedPanelPointer] = useState(0);
+
+  useEffect(() => {
+    if (!myPanelIndices.length) navigate('/lobby');
+  }, [myPanelIndices, navigate]);
+
+  const currentPanelIndex = myPanelIndices[ownedPanelPointer];
+  const panelTitle = panelTitles[currentPanelIndex];
   const [tool, setTool] = useState('pen');
   // array of stroke objects
   const [lines, setLines] = useState([]);
@@ -29,6 +37,7 @@ const Canvas = () => {
   const color = swatchColors[selectedIndex];
   const isDrawing = useRef(false);
   const mouseButtonDown = useRef(false);
+
   
   const undo = () => {
     if (isDrawing.current || lines.length === 0) return;
@@ -126,24 +135,34 @@ const Canvas = () => {
   }
 
   const handleEyeDropper = async () => {
-      if (!window.EyeDropper) {
-        alert('Eyedropper isn\'t supported in this browser.');
-        return;
-      }
+    if (!window.EyeDropper) {
+      alert('Eyedropper isn\'t supported in this browser.');
+      return;
+    }
 
-      const eyeDropper = new window.EyeDropper();
+    const eyeDropper = new window.EyeDropper();
 
-      try {
-        const result = await eyeDropper.open();
-        setSwatchColors((prev) => {
-          const updated = [...prev];
-          updated[selectedIndex] = result.sRGBHex;
-          return updated
-        })
-      } catch {
-        // Handle error logs when user cancels.
-      }
-    };
+    try {
+      const result = await eyeDropper.open();
+      setSwatchColors((prev) => {
+        const updated = [...prev];
+        updated[selectedIndex] = result.sRGBHex;
+        return updated
+      })
+    } catch {
+      // Handle error logs when user cancels.
+    }
+  };
+
+  const handleDone = () => {
+    if (ownedPanelPointer < myPanelIndices.length - 1) {
+      setLines([]);
+      setRedoStack([]);
+      setOwnedPanelPointer((i) => i + 1);
+    } else {
+      navigate('/reveal');
+    }
+  };
 
 
   return (
@@ -175,8 +194,11 @@ const Canvas = () => {
 
       <div>
         <div className='flex flex-col bg-maroon-card w-200 h-25 rounded-t-lg items-center justify-center'>
-          <span className='text-peach text-lg tracking-wide'>{comicTitle}</span>
-          <span className='text-peach text-3xl tracking-wide'>{panelTitle}</span>
+          <span className='absolute top-2 left-3 text-peach text-sm tracking-widest'>
+            PANEL {currentPanelIndex + 1}/{panelTitles.length}
+          </span>
+          <span className='text-light-peach text-lg tracking-wide'>{comicTitle}</span>
+          <span className='text-peach text-3xl tracking-wide text-center'>{panelTitle}</span>
         </div>
         <div className='overflow-hidden rounded-b-lg'>
           <Stage
@@ -235,7 +257,7 @@ const Canvas = () => {
           ))}
         </div>
 
-        <button onClick={() => navigate('/reveal')} className='bg-peach text-3xl text-maroon-card px-4 py-5 rounded-md'>
+        <button onClick={handleDone} className='bg-peach text-3xl text-maroon-card px-4 py-5 rounded-md'>
           DONE!
         </button>
       </div>

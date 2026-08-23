@@ -33,3 +33,11 @@ export const deriveIsHost = (room) => {
     const me = room.participants.find(p => p.socketId === socket.id);
     return me ? me.isHost : false;
 };
+
+export const startSession = (code) =>
+new Promise((resolve, reject) => {
+    socket.emit('room:start', { code }, (res) => {
+    if (res.error) reject(res);
+    else resolve(res);
+    });
+});
