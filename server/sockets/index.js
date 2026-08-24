@@ -87,6 +87,31 @@ const registerSocketHandlers = (io, socket, ai) => {
 
     callback({ sessionId: session._id });
   });
+
+
+  socket.on('panel:submit', async ({ sessionId, panelIndex, strokes }, callback) => {
+    try {
+      const session = await Session.findById(sessionId);
+      if (!session) return callback({ error: 'Session not found.' });
+
+      session.panels[panelIndex].strokes = strokes;
+      session.panels[panelIndex].submitted = true;
+      await session.save();
+
+      const allSubmitted = session.panels.every((p) => p.submitted);
+      if (allSubmitted) {
+        const code = session.roomCode;
+        session.roomCode = undefined;
+        await session.save();
+        if (code) io.to(code).emit('session:revealed', { sessionId: session._id });
+      }
+
+      callback({});
+    } catch (err) {
+      console.error(err);
+      callback({ error: 'Failed to submit panel.' });
+    }
+  });
 };
 
 // Closing room

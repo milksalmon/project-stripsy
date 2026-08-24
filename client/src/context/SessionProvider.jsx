@@ -12,9 +12,8 @@ export const SessionProvider = ({ children }) => {
         const handleStarted = ({ sessionId, participants, panelOwners, comicTitle, panelTitles }) => {
             const myParticipantIndex = participants.findIndex(p => p.socketId === socket.id);
             const indices = panelOwners
-                .map((ownerIndex, panelIndex) => (ownerIndex === myParticipantIndex ? panelIndex :
-null))
-                .filter((i) => i !== null);
+            .map((ownerIndex, panelIndex) => (ownerIndex === myParticipantIndex ? panelIndex : null))
+            .filter((i) => i !== null);
 
             setSessionId(sessionId);
             setComicTitle(comicTitle);
@@ -27,7 +26,7 @@ null))
     }, []);
 
     return (
-        <SessionContext.Provider value={{ sessionId, comicTitle, panelTitles, myPanelIndices }}>
+        <SessionContext.Provider value={{ sessionId, setSessionId, comicTitle, setComicTitle, panelTitles, setPanelTitles, myPanelIndices, setMyPanelIndices }}>
             {children}
         </SessionContext.Provider>
     )

@@ -24,6 +24,10 @@ const panelSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    submitted: {
+        type: Boolean,
+        default: false,
+    },
 }, { _id: false });
 
 const participantSchema = new mongoose.Schema({

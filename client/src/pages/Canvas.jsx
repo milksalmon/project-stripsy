@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Stage, Layer, Line, Rect } from 'react-konva';
 import { useSession } from '@/context/useSession.js';
+import { submitPanel } from '@/services/sessionService.js';
 import ColorSwatch from '@/components/ColorSwatch';
 import StrokeWidthButton from '@/components/StrokeWidthButton';
 import EyeDropper from '@/assets/icons/eyedropper.png';
@@ -18,7 +19,7 @@ const STROKE_WIDTHS = [4, 10, 18, 26];
 
 const Canvas = () => {
   const navigate = useNavigate()
-  const { comicTitle, panelTitles, myPanelIndices } = useSession();
+  const { sessionId, comicTitle, panelTitles, myPanelIndices } = useSession();
   const [ownedPanelPointer, setOwnedPanelPointer] = useState(0);
 
   useEffect(() => {
@@ -154,7 +155,14 @@ const Canvas = () => {
     }
   };
 
-  const handleDone = () => {
+  const handleDone = async () => {
+    try {
+      await submitPanel(sessionId, currentPanelIndex, lines);
+    } catch (err) {
+      console.error(err.error ?? 'Could not submit panel.');
+      return;
+    }
+
     if (ownedPanelPointer < myPanelIndices.length - 1) {
       setLines([]);
       setRedoStack([]);

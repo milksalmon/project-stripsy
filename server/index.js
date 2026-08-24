@@ -8,6 +8,7 @@ import connectDB from './config/connect.js'
 import registerSocketHandlers from './sockets/index.js'
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.js';
+import sessionsRouter from './routes/sessions.js';
 
 dotenv.config();
 
@@ -28,6 +29,8 @@ app.use(express.json());
 
 app.use(cookieParser());
 app.use('/auth', authRouter);
+
+app.use('/sessions', sessionsRouter);
 
 // Socket.IO listener
 const io = new Server(httpServer, {
