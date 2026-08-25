@@ -33,11 +33,12 @@ const Reveal = () => {
   return (
     <div className='flex flex-col items-center gap-6 pt-12 pb-12'>
       <h1 className='text-peach text-5xl tracking-wide'>{session.comicTitle}</h1>
-
       <div className='grid grid-cols-2 gap-4'>
         {session.panels.map((panel, i) => (
-          <div key={i} className='flex flex-col bg-maroon-card rounded-lg overflow-hidden'>
-            <p className='text-peach text-center py-2'>{session.panelTitles[i]}</p>
+          <div key={i} className='flex flex-col bg-maroon-card rounded-lg overflow-hidden w-100'>
+            <div className='h-12.5 flex items-center justify-center'>
+              <p className='text-peach text-center py-2 wrap-break-word line-clamp-2 leading-snug'>{session.panelTitles[i]}</p>
+            </div>
             <Stage width={400} height={300} scaleX={0.5} scaleY={0.5}>
               <Layer>
                 <Rect x={0} y={0} width={800} height={600} fill='#FFF3E3' />

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Stage, Layer, Line, Rect } from 'react-konva';
 import { useSession } from '@/context/useSession.js';
@@ -18,9 +18,11 @@ const SWATCH_COLORS = ['#000000', '#FFFFFF', '#7A7A7A', '#C0C0C0', '#2F5FBF', '#
 const STROKE_WIDTHS = [4, 10, 18, 26];
 
 const Canvas = () => {
-  const navigate = useNavigate()
-  const { sessionId, comicTitle, panelTitles, myPanelIndices } = useSession();
+  const navigate = useNavigate();
+  const { sessionId, comicTitle, panelTitles, myPanelIndices, timerDuration } = useSession();
   const [ownedPanelPointer, setOwnedPanelPointer] = useState(0);
+  const [waitingForOthers, setWaitingForOthers] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(timerDuration);
 
   useEffect(() => {
     if (!myPanelIndices.length) navigate('/lobby');
@@ -38,23 +40,30 @@ const Canvas = () => {
   const color = swatchColors[selectedIndex];
   const isDrawing = useRef(false);
   const mouseButtonDown = useRef(false);
+  const isSubmittingRef = useRef(false);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   
-  const undo = () => {
+  const undo = useCallback(() => {
     if (isDrawing.current || lines.length === 0) return;
 
     const last = lines[lines.length - 1];
     setLines((prev) => prev.slice(0, -1));
     setRedoStack((prev) => [...prev, last]);
-  }
+  }, [lines])
 
-  const redo = () => {
+  const redo = useCallback(() => {
     if (isDrawing.current || redoStack.length === 0) return;
 
     const restored = redoStack[redoStack.length - 1];
     setRedoStack((prev) => prev.slice(0, -1));
     setLines((prev) => [...prev, restored]);
-  }
+  }, [redoStack])
 
   useEffect(() => {
     const handleWindowMouseUp = () => { mouseButtonDown.current = false; };
@@ -65,7 +74,7 @@ const Canvas = () => {
   // Undo redo ctrl shortcut register
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (!e.ctrlKey) return;
+      if (!e.ctrlKey || waitingForOthers) return;
 
       if (e.key === 'z') {
         e.preventDefault();
@@ -78,7 +87,7 @@ const Canvas = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo]);
+  }, [undo, redo, waitingForOthers]);
   
   const handleMouseDown = (e) => {
     mouseButtonDown.current = true;
@@ -155,12 +164,17 @@ const Canvas = () => {
     }
   };
 
-  const handleDone = async () => {
+  const handleDone = useCallback(async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     try {
       await submitPanel(sessionId, currentPanelIndex, lines);
     } catch (err) {
       console.error(err.error ?? 'Could not submit panel.');
       return;
+    } finally {
+      isSubmittingRef.current = false;
     }
 
     if (ownedPanelPointer < myPanelIndices.length - 1) {
@@ -168,58 +182,81 @@ const Canvas = () => {
       setRedoStack([]);
       setOwnedPanelPointer((i) => i + 1);
     } else {
-      navigate('/reveal');
+      setWaitingForOthers(true);
     }
-  };
+  }, [sessionId, currentPanelIndex, lines, ownedPanelPointer, myPanelIndices.length]);
+
+  useEffect(() => {
+    if (waitingForOthers || !timerDuration) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTimeLeft(timerDuration);
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [ownedPanelPointer, waitingForOthers, timerDuration]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && !waitingForOthers) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      handleDone();
+    }
+  }, [handleDone, timeLeft, waitingForOthers]);
 
 
   return (
     <div className='flex justify-center items-start gap-6 pt-12 pb-12'>
-        {/* <button onClick={() => navigate(-1)}>back</button> */}
+      {!waitingForOthers && (
+        <div className='bg-maroon-slot rounded-lg p-4 grid grid-cols-2 gap-3 self-center'>
+          {swatchColors.map((swatch, i) => (
+            <ColorSwatch
+              key={i}
+              color={swatch}
+              active={selectedIndex === i}
+              onClick={() => setSelectedIndex(i)}
+              onColorChange={(newColor) => {
+                setSwatchColors((prev) => {
+                  const updated = [...prev];
+                  updated[i] = newColor;
+                  return updated;
+                });
+                setSelectedIndex(i);
+              }}
+            />
+          ))}
 
-      <div className='bg-maroon-slot rounded-lg p-4 grid grid-cols-2 gap-3 self-center'>
-        {swatchColors.map((swatch, i) => (
-          <ColorSwatch
-            key={i}
-            color={swatch}
-            active={selectedIndex === i}
-            onClick={() => setSelectedIndex(i)}
-            onColorChange={(newColor) => {
-              setSwatchColors((prev) => {
-                const updated = [...prev];
-                updated[i] = newColor;
-                return updated;
-              });
-              setSelectedIndex(i);
-            }}
-          />
-        ))}
+          <button onClick={handleEyeDropper} className='col-span-2 flex items-center justify-center bg-maroon-card rounded-md p-3 cursor-pointer text-2xl'>
+            <img className='select-none w-7.5' src={EyeDropper} alt="EYEDROPPER" />
+          </button>
+        </div>
+      )}
 
-        <button onClick={handleEyeDropper} className='col-span-2 flex items-center justify-center bg-maroon-card rounded-md p-3 cursor-pointer text-2xl'>
-          <img className='select-none w-7.5' src={EyeDropper} alt="EYEDROPPER" />
-        </button>
-      </div>
 
       <div>
         <div className='flex flex-col bg-maroon-card w-200 h-25 rounded-t-lg items-center justify-center'>
+          <span className='absolute top-2 right-3 text-peach text-sm tracking-widest'>
+            {formatTime(timeLeft)}
+          </span>
           <span className='absolute top-2 left-3 text-peach text-sm tracking-widest'>
             PANEL {currentPanelIndex + 1}/{panelTitles.length}
           </span>
           <span className='text-light-peach text-lg tracking-wide'>{comicTitle}</span>
-          <span className='text-peach text-3xl tracking-wide text-center'>{panelTitle}</span>
+          <span className='text-peach text-3xl tracking-wide text-center wrap-break-word line-clamp-2'>{panelTitle}</span>
         </div>
-        <div className='overflow-hidden rounded-b-lg'>
+        <div className='overflow-hidden rounded-b-lg relative'>
           <Stage
             width={800}
             height={600}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onMouseEnter={handleMouseEnter}
-            onTouchStart={handleMouseDown}
-            onTouchMove={handleMouseMove}
-            onTouchEnd={handleMouseUp}
+            onMouseDown={waitingForOthers ? undefined : handleMouseDown}
+            onMouseMove={waitingForOthers ? undefined : handleMouseMove}
+            onMouseUp={waitingForOthers ? undefined : handleMouseUp}
+            onMouseLeave={waitingForOthers ? undefined : handleMouseLeave}
+            onMouseEnter={waitingForOthers ? undefined : handleMouseEnter}
+            onTouchStart={waitingForOthers ? undefined : handleMouseDown}
+            onTouchMove={waitingForOthers ? undefined : handleMouseMove}
+            onTouchEnd={waitingForOthers ? undefined : handleMouseUp}
           >
             <Layer>
               <Rect x={0} y={0} width={800} height={600} fill='#FFF3E3'/>
@@ -242,36 +279,40 @@ const Canvas = () => {
               ))}
             </Layer>
           </Stage>
+              {waitingForOthers && (
+                <div className='absolute inset-0 bg-black/60 flex items-center justify-center'>
+                  <p className='text-peach text-xl text-center px-8'>
+                    Waiting for other participants to finish…
+                  </p>
+                </div>
+              )}
           </div>
       </div>
+      {!waitingForOthers && (
+        <div className='flex flex-col items-center gap-6 self-center'>
+          <div className='bg-maroon-card rounded-lg p-4 flex flex-col gap-3'>
+            <ToolButton icon={UndoRedo} onClick={undo}/>
+            <ToolButton icon={UndoRedo} flip onClick={redo}/>
+            <ToolButton icon={PaintBrush} activeIcon={PaintBrushSelected} active={tool === 'pen'} onClick={() => setTool('pen')}/>
+            <ToolButton icon={Eraser} activeIcon={EraserSelected} active={tool === 'eraser'} onClick={() => setTool('eraser')}/>
+          </div>
 
-      <div className='flex flex-col items-center gap-6 self-center'>
-        <div className='bg-maroon-card rounded-lg p-4 flex flex-col gap-3'>
-          <ToolButton icon={UndoRedo} onClick={undo}/>
-          <ToolButton icon={UndoRedo} flip onClick={redo}/>
-          <ToolButton icon={PaintBrush} activeIcon={PaintBrushSelected} active={tool === 'pen'} onClick={() => setTool('pen')}/>
-          <ToolButton icon={Eraser} activeIcon={EraserSelected} active={tool === 'eraser'} onClick={() => setTool('eraser')}/>
-          
+          <div className='flex gap-2 flex-col bg-maroon-card rounded-lg p-4'>
+            {STROKE_WIDTHS.map((width) => (
+              <StrokeWidthButton
+                key={width}
+                width={width}
+                active={strokeWidth === width}
+                onClick={() => setStrokeWidth(width)}
+              />
+            ))}
+          </div>
+
+          <button onClick={handleDone} className='bg-peach text-3xl text-maroon-card px-4 py-5 rounded-md'>
+            DONE!
+          </button>
         </div>
-
-        <div className='flex gap-2 flex-col bg-maroon-card rounded-lg p-4'>
-          {STROKE_WIDTHS.map((width) => (
-            <StrokeWidthButton
-              key={width}
-              width={width}
-              active={strokeWidth === width}
-              onClick={() => setStrokeWidth(width)}
-            />
-          ))}
-        </div>
-
-        <button onClick={handleDone} className='bg-peach text-3xl text-maroon-card px-4 py-5 rounded-md'>
-          DONE!
-        </button>
-      </div>
-
-
-
+      )}
     </div>
     
   );

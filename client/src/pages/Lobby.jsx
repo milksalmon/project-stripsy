@@ -5,6 +5,7 @@ import { useRoom } from '@/context/useRoom.js';
 import { leaveRoom, updateRoomSettings } from '@/services/roomService.js';
 import ParticipantSlot from '@/components/ParticipantSlot';
 import SessionSettingsPanel from '@/components/SessionSettingsPanel';
+import LoadingIndicator from '@/components/LoadingIndicator.jsx';
 import settingsIcon from '@/assets/icons/Settings.png';
 import { startSession } from '../services/roomService.js';
 import { useSession } from '../context/useSession.js';
@@ -17,6 +18,8 @@ const Lobby = () => {
   const { room, code, isHost, setRoom, setCode, setIsHost } = useRoom();
 
   const [copied, setCopied] = useState(false);
+
+  const [ isLoading, setIsLoading ] = useState(false);
 
   useEffect(() => {
     if (!room || !code) navigate('/');
@@ -35,10 +38,13 @@ const Lobby = () => {
   };
 
   const handleStart = async () => {
+    setIsLoading(true);
     try {
       await startSession(code);
     } catch (err) {
       console.error(err.error ?? 'Could not start session.');
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -87,8 +93,8 @@ const Lobby = () => {
 
             <div className='flex gap-3'>
               {isHost ? (
-                <button onClick={handleStart} className='cursor-pointer flex-auto rounded-md text-maroon-card bg-peach px-4 py-3 text-3xl'>
-                  START DRAWING!
+                <button onClick={handleStart} disabled={isLoading} className='cursor-pointer flex-auto rounded-md text-maroon-card bg-peach px-4 py-3 text-3xl'>
+                  {isLoading? <LoadingIndicator /> : 'START DRAWING!'}
                 </button>
               ) : (
                 <button disabled className='flex-auto rounded-md text-white/60 bg-maroon-slot px-4 py-3 text-3xl cursor-not-allowed'>

@@ -45,6 +45,13 @@ export function joinRoom( code, socketId, username ) {
         return { error: 'Room not found.'}
     }
 
+    const isDuplicate = room.participants.some(
+        p => p.username.trim().toLowerCase() === username.trim().toLowerCase()
+    );
+    if (isDuplicate) {
+        return { error: 'That name is already taken in this room.' };
+    }
+
     room.participants.push({ socketId, username, isHost: false })
     return { room };
 }
