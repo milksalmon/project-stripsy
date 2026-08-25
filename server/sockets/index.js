@@ -1,6 +1,7 @@
 import Session from '../models/session.js';
 import { createRoom, joinRoom, findRoomBySocket, leaveRoom, updateRoomSettings, getRoom, deleteRoom } from '../state/rooms.js'
 import { generateSessionContent } from '../services/gemini.js';
+import { registerSessionParticipant, getSessionForSocket, clearSessionSocket } from '../state/sessions.js';
 
 const MAX_PANELS = 4;
 
@@ -27,10 +28,36 @@ const registerSocketHandlers = (io, socket, ai) => {
     if (callback) callback({});
   });
 
-  socket.on('disconnect', () => {
-    // Take searched socket and disconnect
+  socket.on('disconnect', async () => {
     const code = findRoomBySocket(socket.id);
-    if (code) handleLeave(socket, code);
+    if (code) {
+      handleLeave(socket, code);
+      return;
+    }
+
+    const entry = getSessionForSocket(socket.id);
+    if (!entry) return;
+    clearSessionSocket(socket.id);
+
+    try {
+      const session = await Session.findById(entry.sessionId);
+      if (!session) return;
+
+      let changed = false;
+      for (const panelIndex of entry.panelIndices) {
+        const panel = session.panels[panelIndex];
+        if (panel && !panel.submitted) {
+          panel.submitted = true;
+          changed = true;
+        }
+      }
+      if (!changed) return;
+
+      await session.save();
+      await checkAndRevealIfComplete(session, io);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on('room:updateSettings', ({ code, settings }, callback) => {
@@ -76,6 +103,13 @@ const registerSocketHandlers = (io, socket, ai) => {
 
     deleteRoom(code);
 
+    room.participants.forEach((p, participantIndex) => {
+      const panelIndices = panelOwners
+        .map((ownerIndex, panelIndex) => (ownerIndex === participantIndex ? panelIndex : null))
+        .filter((i) => i !== null);
+      registerSessionParticipant(p.socketId, session._id.toString(), panelIndices);
+    });
+
     io.to(code).emit('session:started', {
       sessionId: session._id,
       participants: room.participants,
@@ -89,6 +123,7 @@ const registerSocketHandlers = (io, socket, ai) => {
   });
 
 
+
   socket.on('panel:submit', async ({ sessionId, panelIndex, strokes }, callback) => {
     try {
       const session = await Session.findById(sessionId);
@@ -98,13 +133,7 @@ const registerSocketHandlers = (io, socket, ai) => {
       session.panels[panelIndex].submitted = true;
       await session.save();
 
-      const allSubmitted = session.panels.every((p) => p.submitted);
-      if (allSubmitted) {
-        const code = session.roomCode;
-        session.roomCode = undefined;
-        await session.save();
-        if (code) io.to(code).emit('session:revealed', { sessionId: session._id });
-      }
+      await checkAndRevealIfComplete(session, io);
 
       callback({});
     } catch (err) {
@@ -142,6 +171,16 @@ function assignPanelOwners(participants) {
   });
 
   return owners.sort(() => Math.random() - 0.5);
+}
+
+async function checkAndRevealIfComplete(session, io) {
+  const allSubmitted = session.panels.every((p) => p.submitted);
+  if (allSubmitted) {
+    const code = session.roomCode;
+    session.roomCode = undefined;
+    await session.save();
+    if (code) io.to(code).emit('session:revealed', { sessionId: session._id });
+  }
 }
 
 export default registerSocketHandlers;
