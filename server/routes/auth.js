@@ -36,7 +36,7 @@ router.post('/signup', async (req, res) => {
 
         const token = issueToken(user);
         res.cookie('token', token, cookieOptions);
-        res.status(201).json({ email: user.email, username: user.username });
+        res.status(201).json({ id: user._id, email: user.email, username: user.username });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Signup failed.' });
@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
 
         const token = issueToken(user);
         res.cookie('token', token, cookieOptions);
-        res.json({ email: user.email, username: user.username });
+        res.json({ id: user._id, email: user.email, username: user.username });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Login failed.' });
@@ -82,7 +82,7 @@ router.get('/me', requireAuth, async (req, res) => {
         if (!user) {
             return res.status(401).json({ error: 'Not authenticated.' });
         }
-        res.json({ email: user.email, username:user.username});
+        res.json({ id: user._id, email: user.email, username:user.username});
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to fetch user.' });

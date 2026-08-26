@@ -15,13 +15,14 @@ export function generateRoomCode(length = 6) {
     return code;
 }
 
-export function createRoom(socketId, username) {
+export function createRoom(socketId, username, accountId = null) {
     // room schema
     const room = {
         participants: [
             {
                 socketId, 
-                username, 
+                username,
+                accountId,
                 isHost: true
             }
         ],
@@ -37,11 +38,11 @@ export function createRoom(socketId, username) {
     return {code, room};
 }
 
-export function joinRoom( code, socketId, username ) {
+export function joinRoom( code, socketId, username, accountId = null ) {
     const room = rooms.get(code);
 
-    // if room returns undefined
     if (!room) {
+        // if room returns undefined
         return { error: 'Room not found.'}
     }
 
@@ -52,7 +53,7 @@ export function joinRoom( code, socketId, username ) {
         return { error: 'That name is already taken in this room.' };
     }
 
-    room.participants.push({ socketId, username, isHost: false })
+    room.participants.push({ socketId, username, accountId, isHost: false, })
     return { room };
 }
 

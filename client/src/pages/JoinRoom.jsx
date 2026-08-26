@@ -5,10 +5,12 @@ import { socket } from '@/socket.js';
 import { createRoom, joinRoom, deriveIsHost } from '@/services/roomService.js';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import AuthMenu from '@/components/AuthMenu';
+import { useAuth } from '@/context/useAuth.js';
 
 const JoinRoom = () => {
     const navigate = useNavigate();
     const { setRoom, setCode, setIsHost } = useRoom();
+    const { user } = useAuth();
 
     const [ isJoining, setIsJoining ] = useState(false);
     const [ isCreating, setIsCreating ] = useState(false);
@@ -32,7 +34,7 @@ const JoinRoom = () => {
         setIsJoining(true);
         setError('');
         try {
-            const { room } = await joinRoom(roomCode.trim().toUpperCase(), username.trim());
+            const { room } = await joinRoom(roomCode.trim().toUpperCase(), username.trim(), user?.id ?? null);
             enterRoom(roomCode.trim().toUpperCase(), room);
         } catch (err) {
             setError(err.error ?? 'Could not join room.');
@@ -45,7 +47,7 @@ const JoinRoom = () => {
         setIsCreating(true);
         setError('');
         try {
-            const { code, room } = await createRoom(username.trim());
+            const { code, room } = await createRoom(username.trim(), user?.id ?? null);
             enterRoom(code, room);
         } catch (err) {
             setError(err.error ?? 'Could not create room.');

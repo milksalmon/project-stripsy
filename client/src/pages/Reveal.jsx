@@ -28,6 +28,112 @@ const Reveal = () => {
     navigate('/');
   };
 
+  const drawWrappedText = (ctx, text, centerX, centerY, maxWidth, lineHeight) => {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    words.forEach((word) => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+    if (currentLine) lines.push(currentLine);
+
+    const shown = lines.slice(0, 2);
+    if (lines.length > 2) {
+      shown[1] = `${shown[1].slice(0, -1)}…`;
+    }
+
+    const startY = centerY - ((shown.length - 1) * lineHeight) / 2;
+    shown.forEach((line, i) => {
+      ctx.fillText(line, centerX, startY + i * lineHeight);
+    });
+  };
+
+  const handleSavePng = async () => {
+    await Promise.all([
+      document.fonts.load('44px NitwFont'),
+      document.fonts.load('28px NitwFont'),
+    ]);
+
+    const panelW = 800;
+    const panelH = 600;
+    const titleBarH = 70;
+    const headerH = 90;
+    const gap = 16;
+
+    const canvasEl = document.createElement('canvas');
+    canvasEl.width = panelW * 2 + gap * 3;
+    canvasEl.height = headerH + (titleBarH + panelH) * 2 + gap * 3;
+    const ctx = canvasEl.getContext('2d');
+
+    ctx.fillStyle = '#935247';
+    ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+
+    ctx.fillStyle = '#FFB97B';
+    ctx.font = '80px NitwFont, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(session.comicTitle, canvasEl.width / 2, headerH / 2);
+
+    session.panels.forEach((panel, i) => {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const cellX = gap + col * (panelW + gap);
+      const cellY = headerH + gap + row * (titleBarH + panelH + gap);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(cellX, cellY, panelW, titleBarH + panelH, 16);
+      ctx.clip();
+
+      ctx.fillStyle = '#40080B';
+      ctx.fillRect(cellX, cellY, panelW, titleBarH);
+
+      ctx.fillStyle = '#FFB97B';
+      ctx.font = '28px NitwFont, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      drawWrappedText(ctx, session.panelTitles[i] ?? '', cellX + panelW / 2, cellY + titleBarH / 2, panelW - 40, 32);
+
+      ctx.fillStyle = '#FFF3E3';
+      ctx.fillRect(cellX, cellY + titleBarH, panelW, panelH);
+
+      panel.strokes.forEach((line) => {
+        const points = line.points;
+        if (points.length < 4) return;
+
+        ctx.save();
+        ctx.globalCompositeOperation = line.tool === 'eraser' ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = line.strokeWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(cellX + points[0], cellY + titleBarH + points[1]);
+        for (let p = 2; p < points.length; p += 2) {
+          ctx.lineTo(cellX + points[p], cellY + titleBarH + points[p + 1]);
+        }
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      ctx.restore();
+    });
+
+    const link = document.createElement('a');
+    const safeTitle = session.comicTitle.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+    link.download = `${safeTitle || 'stripsy-comic'}.png`;
+    link.href = canvasEl.toDataURL('image/png');
+    link.click();
+  };
+
   if (!session) return null;
 
   return (
@@ -62,9 +168,14 @@ const Reveal = () => {
         ))}
       </div>
 
+      <div className='flex gap-4'>
+        <button onClick={handleSavePng} className='bg-maroon-card text-3xl text-peach px-4 py-5 rounded-md'>
+          SAVE AS PNG
+        </button>
         <button onClick={handleEndSession} className='bg-peach text-3xl text-maroon-card px-4 py-5 rounded-md'>
           END SESSION
         </button>
+      </div>
     </div>
   );
 };

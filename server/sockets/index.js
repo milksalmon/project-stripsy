@@ -2,18 +2,19 @@ import Session from '../models/session.js';
 import { createRoom, joinRoom, findRoomBySocket, leaveRoom, updateRoomSettings, getRoom, deleteRoom } from '../state/rooms.js'
 import { generateSessionContent } from '../services/gemini.js';
 import { registerSessionParticipant, getSessionForSocket, clearSessionSocket } from '../state/sessions.js';
+import User from '../models/user.js';
 
 const MAX_PANELS = 4;
 
 const registerSocketHandlers = (io, socket, ai) => {
-  socket.on('room:create', ({ username }, callback) => {
-    const { code, room } = createRoom(socket.id, username);
+  socket.on('room:create', ({ username, accountId }, callback) => {
+    const { code, room } = createRoom(socket.id, username, accountId);
     socket.join(code);
     callback({ code, room });
   })
 
-  socket.on('room:join', ({ code, username }, callback) => {
-    const result = joinRoom(code, socket.id, username);
+  socket.on('room:join', ({ code, username, accountId }, callback) => {
+    const result = joinRoom(code, socket.id, username, accountId);
     if (result.error) {
       callback(result);
       return;
@@ -93,7 +94,7 @@ const registerSocketHandlers = (io, socket, ai) => {
 
     const session = await Session.create({
       roomCode: code,
-      participants: room.participants.map(p => ({ username: p.username, accountId: null })),
+      participants: room.participants.map(p => ({ username: p.username, accountId: p.accountId ?? null })),
       timerDuration: room.timerDuration,
       themePrompt: room.themePrompt,
       comicTitle,
@@ -179,6 +180,18 @@ async function checkAndRevealIfComplete(session, io) {
     const code = session.roomCode;
     session.roomCode = undefined;
     await session.save();
+
+    const accountIds = session.participants
+      .map((p) => p.accountId)
+      .filter((id) => id != null);
+
+    if (accountIds.length > 0) {
+      await User.updateMany(
+        { _id: { $in: accountIds } },
+        { $addToSet: { history: session._id } }
+      );
+    }
+
     if (code) io.to(code).emit('session:revealed', { sessionId: session._id });
   }
 }

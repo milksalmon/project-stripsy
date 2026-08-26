@@ -1,16 +1,16 @@
 import { socket } from '../socket.js';
 
-export const createRoom = (username) =>
+export const createRoom = (username, accountId = null) =>
     new Promise((resolve, reject) => {
-        socket.emit('room:create', { username }, (res) => {
+        socket.emit('room:create', { username, accountId }, (res) => {
             if (res.error) reject(res);
             else resolve(res);
         });
     });
 
-export const joinRoom = (code, username) =>
+export const joinRoom = (code, username, accountId = null) =>
     new Promise((resolve, reject) => {
-        socket.emit('room:join', { code, username }, (res) => {
+        socket.emit('room:join', { code, username, accountId }, (res) => {
             if (res.error) reject(res);
             else resolve(res);
         });

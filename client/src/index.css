@@ -9,6 +9,11 @@ body {
   margin: 0px;
 }
 
+input,
+textarea {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 @font-face {
   font-family: "NitwFont";
   font-style: normal;
