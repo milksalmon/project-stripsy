@@ -6,7 +6,7 @@ import { leaveRoom, updateRoomSettings } from '@/services/roomService.js';
 import ParticipantSlot from '@/components/ParticipantSlot';
 import SessionSettingsPanel from '@/components/SessionSettingsPanel';
 import LoadingIndicator from '@/components/LoadingIndicator.jsx';
-import settingsIcon from '@/assets/icons/Settings.png';
+import settingsIcon from '@/assets/icons/settings.png';
 import { startSession } from '../services/roomService.js';
 import { useSession } from '../context/useSession.js';
 
