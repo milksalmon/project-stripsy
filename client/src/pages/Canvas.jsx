@@ -241,10 +241,10 @@ const Canvas = () => {
 
       <div>
         <div className='flex flex-col bg-maroon-card w-200 h-25 rounded-t-lg items-center justify-center'>
-          <span className='absolute top-2 right-3 text-peach text-sm tracking-widest'>
+          <span className='absolute top-2 right-3 text-peach text-4xl tracking-widest'>
             {formatTime(timeLeft)}
           </span>
-          <span className='absolute top-2 left-3 text-peach text-sm tracking-widest'>
+          <span className='absolute top-2 left-3 text-peach text-4xl tracking-widest'>
             PANEL {currentPanelIndex + 1}/{panelTitles.length}
           </span>
           <span className='text-light-peach text-lg tracking-wide'>{comicTitle}</span>
