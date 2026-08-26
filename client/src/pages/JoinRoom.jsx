@@ -57,12 +57,12 @@ const JoinRoom = () => {
     };
 
     return (
-        <div className='relative flex items-center justify-center gap-24 pt-32'>
+        <div className='relative flex items-center justify-center gap-24 min-h-screen'>
         <div className='absolute top-6 right-6'>
             <AuthMenu />
         </div>
         <div className='flex flex-col gap-2'>
-            <h1 className='text-8xl'>
+            <h1 className='flex text-8xl items-center justify-center'>
             <span className='text-white'>STRIP</span>
             <span className='text-orange-400'>SY</span>
             </h1>
