@@ -29,7 +29,7 @@ const interaction = await ai.interactions.create({
     },
     },
 });
-console.log('Gemini responded');
+    console.log('Gemini responded');
 
-return JSON.parse(interaction.output_text);
+    return JSON.parse(interaction.output_text);
 }

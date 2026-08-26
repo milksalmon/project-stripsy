@@ -4,6 +4,7 @@ import { useRoom } from '@/context/useRoom.js';
 import { socket } from '@/socket.js';
 import { createRoom, joinRoom, deriveIsHost } from '@/services/roomService.js';
 import LoadingIndicator from '@/components/LoadingIndicator';
+import AuthMenu from '@/components/AuthMenu';
 
 const JoinRoom = () => {
     const navigate = useNavigate();
@@ -54,7 +55,10 @@ const JoinRoom = () => {
     };
 
     return (
-        <div className='flex items-center justify-center gap-24 pt-32'>
+        <div className='relative flex items-center justify-center gap-24 pt-32'>
+        <div className='absolute top-6 right-6'>
+            <AuthMenu />
+        </div>
         <div className='flex flex-col gap-2'>
             <h1 className='text-8xl'>
             <span className='text-white'>STRIP</span>
@@ -104,10 +108,6 @@ const JoinRoom = () => {
             >
             {isCreating? <LoadingIndicator/> : 'CREATE A NEW ROOM'}
             </button>
-
-            <p className='text-white text-center text-sm mt-2'>
-                HAVE AN ACCOUNT? <span className='text-peach'>LOG IN</span>
-            </p>
         </div>
         </div>
     );

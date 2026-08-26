@@ -75,4 +75,18 @@ router.post('/logout', (req, res) => {
     res.status(204).send();
 });
 
+router.get('/me', requireAuth, async (req, res) => {
+    try {
+        // MongoDB syntax for email, username field
+        const user = await User.findById(req.userId).select('email username');
+        if (!user) {
+            return res.status(401).json({ error: 'Not authenticated.' });
+        }
+        res.json({ email: user.email, username:user.username});
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch user.' });
+    }
+});
+
 export default router;

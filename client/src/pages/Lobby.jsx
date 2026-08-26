@@ -6,9 +6,10 @@ import { leaveRoom, updateRoomSettings } from '@/services/roomService.js';
 import ParticipantSlot from '@/components/ParticipantSlot';
 import SessionSettingsPanel from '@/components/SessionSettingsPanel';
 import LoadingIndicator from '@/components/LoadingIndicator.jsx';
-import settingsIcon from '@/assets/icons/settings.png';
+import settingsIcon from '@/assets/icons/session-settings.png';
 import { startSession } from '../services/roomService.js';
 import { useSession } from '../context/useSession.js';
+import AuthMenu from '@/components/AuthMenu';
 
 const MAX_PANELS = 4;
 
@@ -63,10 +64,14 @@ const Lobby = () => {
   };
 
   return (
-    <div className='flex flex-col items-center pt-12 gap-10'>
+    <div className='relative flex flex-col items-center pt-12 gap-10'>
       <button onClick={handleLeave} className='cursor-pointer absolute top-6 left-6 text-white text-3xl'>
         ←
       </button>
+      
+      <div className='absolute top-6 right-6'>
+        <AuthMenu />
+      </div>
 
       <h1 className='text-9xl'>
         <span className='text-white'>STRIP</span>

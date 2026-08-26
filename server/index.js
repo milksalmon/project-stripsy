@@ -9,6 +9,7 @@ import registerSocketHandlers from './sockets/index.js'
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.js';
 import sessionsRouter from './routes/sessions.js';
+import historyRouter from './routes/history.js';
 
 dotenv.config();
 
@@ -28,9 +29,10 @@ app.use(cors({ origin: clientOrigin, credentials: true }));
 app.use(express.json());
 
 app.use(cookieParser());
-app.use('/auth', authRouter);
 
+app.use('/auth', authRouter);
 app.use('/sessions', sessionsRouter);
+app.use('/history', historyRouter);
 
 // Socket.IO listener
 const io = new Server(httpServer, {
