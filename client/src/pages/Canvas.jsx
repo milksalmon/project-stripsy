@@ -23,6 +23,7 @@ const Canvas = () => {
   const [ownedPanelPointer, setOwnedPanelPointer] = useState(0);
   const [waitingForOthers, setWaitingForOthers] = useState(false);
   const [timeLeft, setTimeLeft] = useState(timerDuration);
+  const prevTimeLeftRef = useRef(timeLeft);
 
   useEffect(() => {
     if (!myPanelIndices.length) navigate('/lobby');
@@ -109,12 +110,13 @@ const Canvas = () => {
     if (!isDrawing.current) {
       return;
     }
-
+    
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
     // immutability to implement undo / redo function, where each strokes are independent.
     setLines((prev) => {
       const last = prev[prev.length - 1];
+      if (!last) return prev;
       // add point and replace last
       const updated = { ...last, points: [...last.points, point.x, point.y]};
       return [...prev.slice(0, -1), updated];
@@ -136,6 +138,7 @@ const Canvas = () => {
 
     setLines((prev) => {
       const last = prev[prev.length - 1];
+      if (!last) return prev;
       const updated = { ...last, points: [...last.points, x, y] };
       return [...prev.slice(0, -1), updated];
     });
@@ -167,6 +170,8 @@ const Canvas = () => {
   const handleDone = useCallback(async () => {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
+    isDrawing.current = false;
+    mouseButtonDown.current = false;
 
     try {
       await submitPanel(sessionId, currentPanelIndex, lines);
@@ -199,10 +204,10 @@ const Canvas = () => {
   }, [ownedPanelPointer, waitingForOthers, timerDuration]);
 
   useEffect(() => {
-    if (timeLeft === 0 && !waitingForOthers) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (timeLeft === 0 && !waitingForOthers && prevTimeLeftRef.current !== 0) {
       handleDone();
     }
+    prevTimeLeftRef.current = timeLeft;
   }, [handleDone, timeLeft, waitingForOthers]);
 
 
