@@ -12,7 +12,7 @@ const Reveal = () => {
 
   useEffect(() => {
     if (!sessionId) return;
-    fetch(`http://localhost:3000/sessions/${sessionId}`)
+    fetch(`${import.meta.env.VITE_SERVER_URL}/sessions/${sessionId}`)
       .then((res) => res.json())
       .then(setSession);
   }, [sessionId]);
