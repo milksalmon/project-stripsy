@@ -7,6 +7,7 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 const History = () => {
     const [sessions, setSessions] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [selectedSession, setSelectedSession] = useState(null);
 
     useEffect(() => {
         fetchHistory()
@@ -42,7 +43,7 @@ const History = () => {
             ) : (
                 <div className='grid grid-cols-3 gap-5 w-full max-w-4xl px-4'>
                     {sessions.map((s) => (
-                        <div key={s._id} className='w-64.5 mx-auto bg-maroon-card rounded-lg overflow-hidden shadow-lg'>
+                        <div key={s._id} onClick={() => setSelectedSession(s)} className='w-64.5 mx-auto bg-maroon-card rounded-lg overflow-hidden shadow-lg cursor-pointer'>
                             <div className='grid grid-cols-2 bg-light-peach'>
                                 {s.panels.map((panel, i) => (
                                     <div
@@ -78,6 +79,53 @@ const History = () => {
                             <p className='text-white text-center text-sm font-bold truncate px-3 py-3'>{s.comicTitle}</p>
                         </div>
                     ))}
+                    {selectedSession && (
+                        <div
+                            className='fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-6'
+                            onClick={() => setSelectedSession(null)}
+                        >
+                            <div
+                                className='flex flex-col items-center gap-6 max-h-full overflow-y-auto'
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <h2 className='text-peach text-4xl tracking-wide text-center'>{selectedSession.comicTitle}</h2>
+                                <div className='grid grid-cols-2 gap-4'>
+                                    {selectedSession.panels.map((panel, i) => (
+                                        <div key={i} className='flex flex-col bg-maroon-card rounded-lg overflow-hidden w-100'>
+                                            <div className='h-12.5 flex items-center justify-center'>
+                                                <p className='text-peach text-center py-2 wrap-break-word line-clamp-2 leading-snug'>{selectedSession.panelTitles[i]}</p>
+                                            </div>
+                                            <Stage width={400} height={300} scaleX={0.5} scaleY={0.5}>
+                                                <Layer>
+                                                    <Rect x={0} y={0} width={800} height={600} fill='#FFF3E3' />
+                                                </Layer>
+                                                <Layer>
+                                                    {panel.strokes.map((line, j) => (
+                                                        <Line
+                                                            key={j}
+                                                            points={line.points}
+                                                            stroke={line.color}
+                                                            strokeWidth={line.strokeWidth}
+                                                            tension={0.5}
+                                                            lineCap='round'
+                                                            lineJoin='round'
+                                                            globalCompositeOperation={line.tool === 'eraser' ? 'destination-out' : 'source-over'}
+                                                        />
+                                                    ))}
+                                                </Layer>
+                                            </Stage>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button
+                                    onClick={() => setSelectedSession(null)}
+                                    className='bg-peach text-3xl text-maroon-card px-4 py-3 rounded-md'
+                                >
+                                    CLOSE
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
