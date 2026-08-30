@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/useAuth.js';
 import { login } from '@/services/authService.js';
 import LoadingIndicator from '@/components/LoadingIndicator';
+import arrowIcon from '@/assets/icons/arrow.png';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -30,6 +31,10 @@ const Login = () => {
 
     return (
         <div className='flex items-center justify-center pt-32'>
+            <button onClick={() => navigate('/')} className='cursor-pointer absolute top-6 left-6 text-white text-3xl flex flex-row gap-3'>
+                <img className='w-7.5' src={arrowIcon} alt="Arrow" />
+                <p>Back to Join</p>
+            </button>
             <form onSubmit={handleSubmit} className='bg-maroon-card rounded-lg p-8 w-100 flex flex-col gap-4'>
                 <h2 className='text-white text-3xl text-center mb-2'>LOG INTO YOUR ROOM</h2>
 

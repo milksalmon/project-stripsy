@@ -3,12 +3,14 @@ import { Stage, Layer, Line, Rect } from 'react-konva';
 import { useSession } from '@/context/useSession.js';
 import { useNavigate } from 'react-router-dom';
 import { useRoom } from '@/context/useRoom.js';
+import { useAuth } from '@/context/useAuth.js';
 
 const Reveal = () => {
   const navigate = useNavigate();
   const { setRoom, setCode, setIsHost } = useRoom();
   const { sessionId, setSessionId, setComicTitle, setPanelTitles, setMyPanelIndices } = useSession();
   const [session, setSession] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!sessionId) return;
@@ -176,6 +178,11 @@ const Reveal = () => {
           END SESSION
         </button>
       </div>
+      {!user && (
+        <span className='absolute bottom-7 right-7 text-gray-400  text-2xl'>
+          Use an account to save future sessions!
+        </span>
+      )}
     </div>
   );
 };

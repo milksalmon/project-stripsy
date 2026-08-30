@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { fetchHistory } from '@/services/historyService.js';
 import { Stage, Layer, Line, Rect } from 'react-konva';
 import LoadingIndicator from '@/components/LoadingIndicator';
+import arrowIcon from '@/assets/icons/arrow.png';
 
 const History = () => {
     const [sessions, setSessions] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedSession, setSelectedSession] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchHistory()
@@ -35,6 +38,10 @@ const History = () => {
 
     return (
         <div className='flex flex-col items-center pt-16 gap-8'>
+            <button onClick={() => navigate('/')} className='cursor-pointer absolute top-6 left-6 text-white text-3xl flex flex-row gap-3'>
+                <img className='w-7.5' src={arrowIcon} alt="Arrow" />
+                <p>Back to Join</p>
+            </button>
             <h1 className='text-5xl text-white'>SESSION HISTORY</h1>
             <p className='text-peach'>{sessions.length} STRIPS MADE</p>
 
