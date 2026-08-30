@@ -1,13 +1,22 @@
 import { useState } from 'react';
+import LoadingIndicator from './LoadingIndicator.jsx';
 
 const TIMER_OPTIONS = [60, 90, 120];
 
 const SessionSettingsPanel = ({ timerDuration, themePrompt, onApply }) => {
     const [timer, setTimer] = useState(timerDuration ?? TIMER_OPTIONS[0]);
     const [theme, setTheme] = useState(themePrompt ?? '');
+    const [ isLoading, setIsLoading ] = useState(false);
+    const [isApplied, setIsApplied] = useState(false);
 
-    const handleApply = () => {
-        onApply({ timer, theme })
+    const handleApply = async () => {
+        setIsLoading(true);
+        try {
+            await onApply({ timer, theme });
+            setIsApplied(true);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -34,7 +43,7 @@ const SessionSettingsPanel = ({ timerDuration, themePrompt, onApply }) => {
                 className='w-full rounded-md bg-maroon-slot text-white placeholder-white/40 px-3 py-2 mb-5 text-xl' 
             />
 
-            <button onClick={handleApply} className='w-full rounded-md bg-orange-300 text-maroon-card py-2 cursor-pointer'>APPLY</button>
+            <button onClick={handleApply} className='w-full rounded-md bg-orange-300 text-maroon-card py-2 cursor-pointer'>{isLoading? <LoadingIndicator/> :  isApplied ? 'APPLIED' : 'APPLY'}</button>
         </div>
     );
 

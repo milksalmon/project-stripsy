@@ -59,7 +59,7 @@ const Lobby = () => {
   };
 
   const handleApplySettings = ({ timer, theme }) => {
-      updateRoomSettings(code, { timerDuration: timer, themePrompt: theme })
+      return updateRoomSettings(code, { timerDuration: timer, themePrompt: theme })
         .then(({ room }) => setRoom(room))
         .catch((err) => console.error(err.error ?? 'Could not update settings.'));
   };
