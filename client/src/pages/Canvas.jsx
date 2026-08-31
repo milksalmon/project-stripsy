@@ -40,8 +40,8 @@ const Canvas = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const color = swatchColors[selectedIndex];
   const isDrawing = useRef(false);
-  const mouseButtonDown = useRef(false);
   const isSubmittingRef = useRef(false);
+  
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -66,12 +66,6 @@ const Canvas = () => {
     setLines((prev) => [...prev, restored]);
   }, [redoStack])
 
-  useEffect(() => {
-    const handleWindowMouseUp = () => { mouseButtonDown.current = false; };
-    window.addEventListener('mouseup', handleWindowMouseUp);
-    return () => window.removeEventListener('mouseup', handleWindowMouseUp);
-  }, []);
-
   // Undo redo ctrl shortcut register
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -91,7 +85,7 @@ const Canvas = () => {
   }, [undo, redo, waitingForOthers]);
   
   const handleMouseDown = (e) => {
-    mouseButtonDown.current = true;
+    if (e.evt.pointerType === 'pen' && e.evt.pressure === 0) return;
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
     // double position register to mark stroke immediately on mouse down.
@@ -100,7 +94,8 @@ const Canvas = () => {
   };
 
   const handleMouseEnter = (e) => {
-    if (mouseButtonDown.current) {
+    const isPressed = e.evt.pointerType === 'pen' ? e.evt.pressure > 0 : e.evt.buttons === 1;
+    if (isPressed) {
       handleMouseDown(e);
     }
   };
@@ -124,7 +119,7 @@ const Canvas = () => {
   };
 
   const handleMouseUp = () => {
-    // mouse is not drawing anymore
+    // pointer is not drawing anymore
     isDrawing.current = false;
   };
 
@@ -171,7 +166,6 @@ const Canvas = () => {
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     isDrawing.current = false;
-    mouseButtonDown.current = false;
 
     try {
       await submitPanel(sessionId, currentPanelIndex, lines);
@@ -254,14 +248,11 @@ const Canvas = () => {
           <Stage
             width={800}
             height={600}
-            onMouseDown={waitingForOthers ? undefined : handleMouseDown}
-            onMouseMove={waitingForOthers ? undefined : handleMouseMove}
-            onMouseUp={waitingForOthers ? undefined : handleMouseUp}
-            onMouseLeave={waitingForOthers ? undefined : handleMouseLeave}
-            onMouseEnter={waitingForOthers ? undefined : handleMouseEnter}
-            onTouchStart={waitingForOthers ? undefined : handleMouseDown}
-            onTouchMove={waitingForOthers ? undefined : handleMouseMove}
-            onTouchEnd={waitingForOthers ? undefined : handleMouseUp}
+            onPointerDown={waitingForOthers ? undefined : handleMouseDown}
+            onPointerMove={waitingForOthers ? undefined : handleMouseMove}
+            onPointerUp={waitingForOthers ? undefined : handleMouseUp}
+            onPointerLeave={waitingForOthers ? undefined : handleMouseLeave}
+            onPointerEnter={waitingForOthers ? undefined : handleMouseEnter}
           >
             <Layer>
               <Rect x={0} y={0} width={800} height={600} fill='#FFF3E3'/>
