@@ -106,26 +106,31 @@ const Reveal = () => {
       ctx.fillStyle = '#FFF3E3';
       ctx.fillRect(cellX, cellY + titleBarH, panelW, panelH);
 
+      const strokeCanvas = document.createElement('canvas');
+      strokeCanvas.width = panelW;
+      strokeCanvas.height = panelH;
+      const strokeCtx = strokeCanvas.getContext('2d');
+
       panel.strokes.forEach((line) => {
         const points = line.points;
         if (points.length < 4) return;
 
-        ctx.save();
-        ctx.globalCompositeOperation = line.tool === 'eraser' ? 'destination-out' : 'source-over';
-        ctx.strokeStyle = line.color;
-        ctx.lineWidth = line.strokeWidth;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        strokeCtx.save();
+        strokeCtx.globalCompositeOperation = line.tool === 'eraser' ? 'destination-out' : 'source-over';
+        strokeCtx.strokeStyle = line.color;
+        strokeCtx.lineWidth = line.strokeWidth;
+        strokeCtx.lineCap = 'round';
+        strokeCtx.lineJoin = 'round';
 
-        ctx.beginPath();
-        ctx.moveTo(cellX + points[0], cellY + titleBarH + points[1]);
+        strokeCtx.beginPath();
+        strokeCtx.moveTo(points[0], points[1]);
         for (let p = 2; p < points.length; p += 2) {
-          ctx.lineTo(cellX + points[p], cellY + titleBarH + points[p + 1]);
+          strokeCtx.lineTo(points[p], points[p + 1]);
         }
-        ctx.stroke();
-        ctx.restore();
+        strokeCtx.stroke();
+        strokeCtx.restore();
       });
-
+      ctx.drawImage(strokeCanvas, cellX, cellY + titleBarH);
       ctx.restore();
     });
 

@@ -78,6 +78,7 @@ const JoinRoom = () => {
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value)}
                 placeholder='E.G. NITW42'
+                maxLength={6}
                 className='bg-maroon-slot rounded-md px-4 py-3 text-white placeholder-white/40 text-center'
             />
             </div>
@@ -87,6 +88,7 @@ const JoinRoom = () => {
             <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                maxLength={20}
                 className='bg-maroon-slot rounded-md px-4 py-3 text-white text-center'
             />
             </div>
