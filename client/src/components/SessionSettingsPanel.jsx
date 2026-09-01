@@ -36,6 +36,7 @@ const SessionSettingsPanel = ({ timerDuration, themePrompt, onApply }) => {
             <p className='text-orange-300 text-xl mb-3'>AI PROMPTS</p>
 
             <textarea 
+                maxLength={100}
                 type='text' 
                 value={theme} 
                 onChange={(e) => setTheme(e.target.value)} 
