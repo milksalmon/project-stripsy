@@ -46,6 +46,10 @@ export function joinRoom( code, socketId, username, accountId = null ) {
         return { error: 'Room not found.'}
     }
 
+    if (room.participants.length >= 4) {
+        return { error: 'Room is full.' };
+    }
+
     const isDuplicate = room.participants.some(
         p => p.username.trim().toLowerCase() === username.trim().toLowerCase()
     );
