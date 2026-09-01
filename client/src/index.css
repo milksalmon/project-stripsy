@@ -31,3 +31,8 @@ textarea {
   --color-peach: #FFB97B;
   --color-light-peach: #FFE3CA;
 }
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}

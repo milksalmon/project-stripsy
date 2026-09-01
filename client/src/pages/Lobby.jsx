@@ -66,12 +66,12 @@ const Lobby = () => {
 
   return (
     <div className='relative flex flex-col items-center pt-12 gap-10'>
-      <button onClick={handleLeave} className='cursor-pointer absolute top-6 left-6 text-white text-3xl flex flex-row gap-3'>
+      <button  onClick={handleLeave} className='cursor-pointer absolute top-6 left-6 text-white text-3xl flex flex-row gap-3'>
         <img className='w-7.5' src={arrowIcon} alt="Arrow" />
         <p>Back to Join</p>
       </button>
       
-      <div className='absolute top-6 right-6'>
+      <div className='absolute top-6 right-6 disabled'>
         <AuthMenu />
       </div>
 
