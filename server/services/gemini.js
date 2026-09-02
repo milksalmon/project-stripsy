@@ -4,7 +4,6 @@ const themeInstruction = themePrompt?.trim()
     : 'Suggest an original, family-friendly comic strip theme.';
     
 console.log('Calling Gemini...');
-console.log(themePrompt)
 const interaction = await ai.interactions.create({
     model: 'gemini-3.6-flash',
     input: `You are generating content for a ${panelCount}-panel collaborative comic strip drawn by different people who cannot see each other's panels until reveal. 
