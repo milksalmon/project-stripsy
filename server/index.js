@@ -22,7 +22,12 @@ const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
 connectDB();
 
-const ai = new GoogleGenAI({ apiKey: gemini });
+const ai = new GoogleGenAI({ 
+  apiKey: gemini,
+  httpOptions: {
+    retryOptions: { attempts: 1 },
+  },
+});
 
 app.use(cors({ origin: clientOrigin, credentials: true }));
 
@@ -51,20 +56,6 @@ io.on('connection', (socket) => {
     console.log(`Socket disconnected: ${socket.id}`);
   });
 });
-
-app.get('/ai-test', async (req, res) => {
-  try {
-    const interaction = await ai.interactions.create({
-      model: "gemini-3.6-flash",
-      input: "Give 5 random countries",
-    });
-    res.json({text: interaction.output_text});
-    console.log(interaction.output_text);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to reach Gemini" });
-  }
-})
 
 httpServer.listen(port, () => {
   console.log(`Listening on ${port}`);
